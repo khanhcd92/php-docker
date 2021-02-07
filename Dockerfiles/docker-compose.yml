@@ -1,0 +1,49 @@
+version: '3'
+services:
+
+  #Nginx Service
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - app-network
+
+  #PHP Service
+  php-fpm:
+    build:
+      context: .
+      dockerfile: php-fpm/Dockerfile
+    container_name: php-fpm
+    restart: unless-stopped
+    tty: true
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: strong_root_password
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
